@@ -183,8 +183,23 @@ describen los pasos básicos para gestionar los apuntes con Git:
     Copiar la URL del fork y clonarlo en la máquina local utilizando el
     siguiente comando:
 
+<<<<<<< HEAD
     ``` bash
     git clone <URL_DEL_FORK> #ej: git clone https://github.com/usuario/guias-programacion-mifork
+=======
+3. **Definir el repositorio original como upstream**  
+   Configurar el repositorio original como `upstream` para poder obtener actualizaciones en el futuro (por ejemplo: nuevos cuestionarios de cada semana):
+   ```bash
+   git remote add upstream https://github.com/GID-IAXPRO/guias-programacion.git
+   ```
+#### Trabajo diario:
+1. **Comprobar si el profesor ha subido un nuevo cuestionario (o cualquier otro cambio)**
+   Para ello, lo que se hace es ejecutar pull sobre el remoto `upstream`. Se ejecuta el siguiente comando:
+   ```bash
+   git pull upstream main --no-rebase --no-edit
+   ```
+   Esto traerá los cambios de la rama principal del repositorio original y los integrará en el repositorio local.
+>>>>>>> df8ddfa636a1c145f2f96545dfc069fa0b06f7af
 
     # suponiendo que el fork se llama "guias-programacion-mifork"
     cd guias-programacion-mifork
