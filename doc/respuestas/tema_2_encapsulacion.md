@@ -179,41 +179,155 @@ La visibilidad `private` se define a nivel de **clase**, no a nivel de **instanc
 
 ### Respuesta
 
+<span style="font-size: 1.3em;">
+
+Los **getters** y **setters** son métodos públicos que permiten leer y modificar, respectivamente, los atributos privados de una clase de forma controlada. 🧭 Un getter devuelve el valor de un atributo, mientras que un setter permite asignarlo tras aplicar validaciones o lógica necesaria.
+
+Su uso mantiene la ocultación de información: aunque el atributo esté privado, la clase decide cómo exponerlo y qué reglas aplicar al modificarlo. ✅ Esto facilita mantener invariantes y agregar lógica adicional (por ejemplo, comprobaciones o eventos) sin cambiar la interfaz pública.
+
+Ejemplo breve:
+
+```java
+public double getX() { return x; }
+public void setX(double x) { if (x >= 0) this.x = x; }
+```
+
+</span>
 
 ## 10. Cuando nos referimos a que la ocultación de información mejora la "seguridad" del programa, ¿nos referimos a que no pueda ser "hackeado"?
 
 ### Respuesta
 
+<span style="font-size: 1.3em;">
+
+No exactamente. Cuando se dice que la ocultación mejora la "seguridad" del programa, se refiere principalmente a la **robustez** y **integridad** del estado interno, no a la seguridad frente a ataques externos. 🛡️
+
+Ocultar atributos y validar cambios reduce errores, evita estados inconsistentes y facilita mantener invariantes; eso ayuda a prevenir fallos accidentales o abusos desde código legítimo. Para evitar ataques maliciosos (hacking) se requieren medidas adicionales: control de acceso, autenticación, autorización, cifrado y prácticas de seguridad específicas. 🔐
+
+</span>
 
 ## 11. ¿Qué diferencia hay entre **miembro de instancia** y **miembro de clase**? ¿Los miembros de clase también se pueden ocultar?
 
 ### Respuesta
 
+<span style="font-size: 1.3em;">
+
+Un **miembro de instancia** es un atributo o método que pertenece a una instancia concreta de la clase; cada objeto tiene su propia copia del miembro. En cambio, un **miembro de clase** (o `static` en Java) pertenece a la clase en sí y se comparte entre todas las instancias. 🧩
+
+Los miembros de clase también se pueden ocultar usando modificadores de visibilidad (`private`, `public`, etc.). Por ejemplo, `private static int contador;` mantiene el control centralizado sobre datos compartidos mientras evita accesos directos desde el exterior. Esto permite aplicar las mismas garantías de encapsulación y control de invariantes a los datos compartidos. 🔁
+
+</span>
 
 ## 12. Brevemente: ¿Tiene sentido que los constructores sean privados?
 
 ### Respuesta
 
+<span style="font-size: 1.3em;">
+
+Sí, tiene sentido en ciertos patrones de diseño. Un constructor `private` evita que el usuario cree instancias directamente; esto es útil para implementar **singleton**, **factorías** controladas o constructores con validación centralizada. 🔒
+
+Al declarar constructores privados se obliga a utilizar métodos estáticos (factorías) o constructores internos que gestionen la creación, permitiendo controlar la creación de objetos, reusar instancias o aplicar validaciones antes de construir. ⚙️
+
+</span>
 
 ## 13. ¿Cómo se indican los **miembros de clase** en Java? Pon un ejemplo, en la clase `Punto` definida anteriormente, para que incluya miembros de clase que permitan saber cuáles son los valores `x` e `y` máximos que se han establecido en todos los puntos que se hayan creado hasta el momento.
 
 ### Respuesta
 
+<span style="font-size: 1.3em;">
+
+En Java, los miembros de clase se marcan con la palabra clave `static`. Estos miembros son compartidos por todas las instancias de la clase. A continuación se muestra un ejemplo que añade contadores máximos a la clase `Punto` y los actualiza en el constructor:
+
+```java
+public class Punto {
+    private double x;
+    private double y;
+    private static double maxX = Double.NEGATIVE_INFINITY;
+    private static double maxY = Double.NEGATIVE_INFINITY;
+
+    public Punto(double x, double y) {
+        this.x = x; this.y = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+    }
+
+    public static double getMaxX() { return maxX; }
+    public static double getMaxY() { return maxY; }
+}
+```
+
+Los atributos `maxX` y `maxY` son `static` y privados; se exponen mediante getters estáticos para mantener la encapsulación. 📈
+
+</span>
 
 ## 14. Como sería un método factoría dentro de la clase `Punto` para construir un `Punto` a partir de dos coordenadas, pero que las redondee al entero más cercano. Escribe sólo el código del método, no toda la clase ¿Has usado `static`? 
 
 ### Respuesta
 
+<span style="font-size: 1.3em;">
+
+```java
+public static Punto crearRedondeado(double x, double y) {
+    double rx = Math.rint(x); // redondeo al entero más cercano
+    double ry = Math.rint(y);
+    return new Punto(rx, ry);
+}
+```
+
+Sí: se ha usado `static` porque la factoría pertenece a la clase y no a una instancia concreta. 🏭
+
+</span>
 
 ## 15. Cambia la implementación de `Punto`. En vez de dos `double`, emplea un array interno de dos posiciones, intentando no modificar la interfaz pública de la clase.
 
 ### Respuesta
 
+<span style="font-size: 1.3em;">
+
+Se puede mantener la interfaz pública mientras la representación interna cambia a un array de dos `double`. A continuación se muestra una implementación compatible con los constructores y métodos anteriores:
+
+```java
+public class Punto {
+    private double[] coord = new double[2]; // coord[0] = x, coord[1] = y
+
+    public Punto(double x, double y) {
+        this.coord[0] = x;
+        this.coord[1] = y;
+    }
+
+    public double calcularDistanciaAOrigen() {
+        double x = coord[0];
+        double y = coord[1];
+        return Math.sqrt(x*x + y*y);
+    }
+
+    public double getX() { return coord[0]; }
+    public double getY() { return coord[1]; }
+
+    // Si existía calcularDistanciaAPunto, seguiría funcionando igual
+    public double calcularDistanciaAPunto(Punto otro) {
+        double dx = this.coord[0] - otro.coord[0];
+        double dy = this.coord[1] - otro.coord[1];
+        return Math.sqrt(dx*dx + dy*dy);
+    }
+}
+```
+
+La interfaz pública (constructores y métodos `getX`, `getY`, `calcularDistanciaAOrigen`, etc.) no cambia; solo cambia la representación interna. 🔁
+
+</span>
 
 ## 16. Si un atributo va a tener un método "getter" y "setter" públicos, ¿no es mejor declararlo público? ¿Cuál es la convención más habitual sobre los atributos, que sean públicos o privados? ¿Tiene esto algo que ver con las "invariantes de clase"?
 
 ### Respuesta
 
+<span style="font-size: 1.3em;">
+
+Aunque pueda parecer redundante, no es recomendable declarar el atributo público si ya se va a proporcionar `getter` y `setter`. La convención habitual es declarar los atributos como `private` y exponer acceso mediante métodos. 🧭
+
+Esto permite validar y controlar las modificaciones (por ejemplo, mantener invariantes) y cambiar la implementación interna sin romper clientes. Por tanto, la práctica protege las invariantes de clase y favorece la evolución del código. 💡
+
+</span>
 
 ## 17. ¿Qué significa que una clase sea **inmutable**? ¿qué es un método modificador? ¿Un método modificador es siempre un "setter"? ¿Tiene ventajas que una clase sea inmutable?
 
